@@ -15,7 +15,11 @@
  */
 package org.springframework.social.vkontakte.connect;
 
+import org.springframework.social.connect.Connection;
+import org.springframework.social.connect.ConnectionData;
+import org.springframework.social.connect.support.OAuth2Connection;
 import org.springframework.social.connect.support.OAuth2ConnectionFactory;
+import org.springframework.social.oauth2.OAuth2ServiceProvider;
 import org.springframework.social.vkontakte.api.VKontakte;
 
 /**
@@ -27,4 +31,14 @@ public class  VKontakteConnectionFactory extends OAuth2ConnectionFactory<VKontak
 	public VKontakteConnectionFactory(String clientId, String clientSecret) {
 		super("vkontakte", new VKontakteServiceProvider(clientId, clientSecret), new VKontakteAdapter());
 	}
+
+    @Override
+    public Connection<VKontakte> createConnection(ConnectionData data) {
+        VKontakteServiceProvider serviceProvider = (VKontakteServiceProvider) getServiceProvider();
+        VKontakteOAuth2Template template = (VKontakteOAuth2Template) serviceProvider.getOAuthOperations();
+        if (template.getUid() == null) {
+            template.setUid(data.getProviderUserId());
+        }
+        return new OAuth2Connection<VKontakte>(data, serviceProvider, getApiAdapter());
+    }
 }
